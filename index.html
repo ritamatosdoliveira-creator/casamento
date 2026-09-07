@@ -502,7 +502,7 @@ function viewInicio(){
 
   return `
   <div class="navbar navbar-row">
-    <div><div class="eyebrow">Bíblia de casamento</div><h1>Início</h1></div>
+    <div><div class="eyebrow">O nosso casamento</div><h1>Início</h1></div>
     <button class="nav-action neutral" id="btn-logout" title="Sair">${ICONS.logout}</button>
   </div>
 
@@ -1030,7 +1030,7 @@ document.getElementById('seat-picker-search').addEventListener('input', e=>{
 function renderLoginForm(msg, isError){
   document.getElementById('login-inner').innerHTML = `
     <div class="login-mark">Rita <span class="amp">&amp;</span> Tiago</div>
-    <div class="login-tag">Acesso reservado — bíblia de casamento</div>
+    <div class="login-tag">Acesso reservado — o nosso casamento</div>
     <div class="login-field"><input type="email" id="login-email" placeholder="o-teu-email@exemplo.com" autocomplete="email" autocapitalize="none" autocorrect="off"></div>
     <button class="login-btn" id="login-send">Enviar link de acesso</button>
     <div class="login-msg ${isError?'error':''}">${msg||''}</div>
