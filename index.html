@@ -1101,6 +1101,12 @@ render = function(){ _origRender(); pushRemote(); };
 function attachFirestoreSync(){
   if(unsubscribeSnapshot) return;
   unsubscribeSnapshot = SHARED_DOC().onSnapshot(snap=>{
+    // NOVO: Força o ecrã de carregamento a desaparecer assim que o Firebase dá sinal de vida
+    if(!firstSyncDone){ 
+      firstSyncDone = true; 
+      document.getElementById('login-screen').classList.add('hidden'); 
+    }
+
     if(snap.exists && snap.data().json){
       const incoming = JSON.parse(snap.data().json);
       if(JSON.stringify(incoming) !== JSON.stringify(state)){
@@ -1108,9 +1114,12 @@ function attachFirestoreSync(){
         _origRender();
       }
     } else {
-      SHARED_DOC().set({ json: JSON.stringify(state), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      // Se o documento não existe no Firestore, cria-o com o estado atual
+      SHARED_DOC().set({ 
+        json: JSON.stringify(state), 
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+      }).catch(err => console.error("Erro ao criar documento inicial:", err));
     }
-    if(!firstSyncDone){ firstSyncDone = true; document.getElementById('login-screen').classList.add('hidden'); }
   }, err=>{
     if(err.code === 'permission-denied'){
       firstSyncDone = false;
