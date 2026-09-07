@@ -30,9 +30,18 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  
+  // Ignora pedidos de extensões do Chrome ou outros protocolos não HTTP
+  if (!event.request.url.startsWith('http')) return;
+
   event.respondWith(
     caches.match(event.request).then((cached) => {
       return cached || fetch(event.request).then((response) => {
+        // Garante que a resposta é válida antes de tentar guardar em cache
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response;
+        }
+
         const copy = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         return response;
