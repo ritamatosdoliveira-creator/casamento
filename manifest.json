@@ -1,7 +1,7 @@
 {
-  "name": "Rita & Tiago — O nosso Casamento",
+  "name": "Rita & Tiago — Bíblia de Casamento",
   "short_name": "Rita & Tiago",
-  "start_url": "./app-instalavel.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#FBF4E8",
