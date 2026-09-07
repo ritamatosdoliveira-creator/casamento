@@ -1032,12 +1032,12 @@ function renderLoginForm(msg, isError){
     <div class="login-mark">Rita <span class="amp">&amp;</span> Tiago</div>
     <div class="login-tag">Acesso reservado — o nosso casamento</div>
     <div class="login-field"><input type="email" id="login-email" placeholder="o-teu-email@exemplo.com" autocomplete="email" autocapitalize="none" autocorrect="off"></div>
-    <button class="login-btn" id="login-send">Enviar link de acesso</button>
+    <div class="login-field" style="margin-top:10px;"><input type="password" id="login-pass" placeholder="Password" autocomplete="current-password"></div>
+    <button class="login-btn" id="login-send">Entrar</button>
     <div class="login-msg ${isError?'error':''}">${msg||''}</div>
-    <div class="login-note">Vais receber um email com um link. Não precisas de criar password.</div>
   `;
-  document.getElementById('login-send').addEventListener('click', handleSendLink);
-  document.getElementById('login-email').addEventListener('keydown', e=>{ if(e.key==='Enter') handleSendLink(); });
+  document.getElementById('login-send').addEventListener('click', handleLogin);
+  document.getElementById('login-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') handleLogin(); });
 }
 function renderLoginSetupNeeded(){
   document.getElementById('login-inner').innerHTML = `
@@ -1052,13 +1052,6 @@ function renderLoading(){
     <div class="login-tag">A carregar os dados…</div>
   `;
 }
-function renderCheckEmail(email){
-  document.getElementById('login-inner').innerHTML = `
-    <div class="login-mark">Rita <span class="amp">&amp;</span> Tiago</div>
-    <div class="login-tag">Verifica o teu email</div>
-    <div class="login-msg">Enviámos um link de acesso para<br><b>${email}</b>.<br>Abre-o neste telemóvel para entrares.</div>
-  `;
-}
 function renderAccessDenied(email){
   document.getElementById('login-inner').innerHTML = `
     <div class="login-mark">Rita <span class="amp">&amp;</span> Tiago</div>
@@ -1068,15 +1061,15 @@ function renderAccessDenied(email){
   `;
   document.getElementById('login-signout').addEventListener('click', ()=>auth.signOut());
 }
-function handleSendLink(){
+function handleLogin(){
   const email = document.getElementById('login-email').value.trim();
-  if(!email){ renderLoginForm('Escreve o teu email.', true); return; }
-  const actionCodeSettings = { url: window.location.href.split('#')[0].split('?')[0], handleCodeInApp:true };
-  auth.sendSignInLinkToEmail(email, actionCodeSettings).then(()=>{
-    window.localStorage.setItem('emailForSignIn', email);
-    renderCheckEmail(email);
-  }).catch(()=>{ renderLoginForm('Não foi possível enviar o link. Verifica o email e tenta novamente.', true); });
+  const pass = document.getElementById('login-pass').value;
+  if(!email || !pass){ renderLoginForm('Escreve o email e a password.', true); return; }
+  auth.signInWithEmailAndPassword(email, pass).catch(()=>{
+    renderLoginForm('Email ou password incorretos. Tenta novamente.', true);
+  });
 }
+
 
 /* ============================================================
    SINCRONIZAÇÃO — autenticação + dados partilhados em tempo real
@@ -1121,15 +1114,6 @@ function attachFirestoreSync(){
 }
 
 if(FIREBASE_READY){
-  if(auth.isSignInWithEmailLink(window.location.href)){
-    let email = window.localStorage.getItem('emailForSignIn');
-    if(!email){ email = window.prompt('Confirma o teu email para entrares:'); }
-    auth.signInWithEmailLink(email, window.location.href).then(()=>{
-      window.localStorage.removeItem('emailForSignIn');
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }).catch(()=>{ renderLoginForm('O link expirou ou é inválido. Pede um novo.', true); });
-  }
-
   auth.onAuthStateChanged(user=>{
     if(user){
       renderLoading();
